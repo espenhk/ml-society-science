@@ -39,8 +39,8 @@ def test_decision_maker(X_test, y_test, interest_rate, decision_maker):
 
 
 ### Setup model
-import name_banker
-decision_maker = name_banker.NameBanker()
+import random_banker
+decision_maker = random_banker.RandomBanker()
 interest_rate = 0.05
 
 ### Do a number of preliminary tests by splitting the data in parts

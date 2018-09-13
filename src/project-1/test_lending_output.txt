@@ -17,3 +17,6 @@ Trial 2: 43701.6061405
 Trial 3: 36418.0051171
 
 = Using RandomBanker
+Trial 1: 366147.424382
+Trial 2: 375869.218748
+Trial 3: 327109.889969
