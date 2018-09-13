@@ -19,10 +19,10 @@ class NameBanker:
 
     # dummy value, assume 80% of loans are repaid
     def get_proba(self):
-        self.proba = 0.1
+        self.proba = 0.8
         return self.proba
 
-    # THe expected utility of granting the loan or not. Here there are two actions:
+    # The expected utility of granting the loan or not. Here there are two actions:
     # action = 0 do not grant the loan
     # action = 1 grant the loan
     #
