@@ -1,0 +1,19 @@
+= Using NameBanker with probability p of a successful return
+== p=0.8
+Trial 1: 811671.63351
+Trial 2: 785167.647446
+Trial 3: 730726.926036
+== p=0.5
+Trial 1: 835328.181468
+Trial 2: 881273.321313
+Trial 3: 826356.885197
+== p=0.2
+Trial 1: 605824.790654
+Trial 2: 611672.643699
+Trial 3: 603023.393655
+== p=0.1
+Trial 1: 27313.5038378
+Trial 2: 43701.6061405
+Trial 3: 36418.0051171
+
+= Using RandomBanker

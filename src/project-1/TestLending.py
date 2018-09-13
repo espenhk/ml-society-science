@@ -30,7 +30,7 @@ def test_decision_maker(X_test, y_test, interest_rate, decision_maker):
         if (action==1):
             if (good_loan == 1):
                 utility -= amount
-            else:    
+            else:
                 utility += amount*(pow(1 + interest_rate, duration) - 1)
     return utility
 
@@ -39,8 +39,8 @@ def test_decision_maker(X_test, y_test, interest_rate, decision_maker):
 
 
 ### Setup model
-import random_banker # this is a random banker
-decision_maker = random_banker.RandomBanker()
+import name_banker
+decision_maker = name_banker.NameBanker()
 interest_rate = 0.05
 
 ### Do a number of preliminary tests by splitting the data in parts
