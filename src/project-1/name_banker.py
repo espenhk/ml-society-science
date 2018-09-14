@@ -1,4 +1,7 @@
 import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 class NameBanker:
     
@@ -7,6 +10,15 @@ class NameBanker:
     # probabilities
     def fit(self, X, y):
         self.data = [X, y]
+        train_data, test_data = train_test_split(self.data, test_size=0.2)
+        # Using KNN, k=5
+        target='Class' #TODO ??
+        numerical_features = ['duration', 'age', 'residence time', 'installment', 'amount', 'duration', 'persons', 'credits']
+        models = [KNeighborsClassifier(n_neighbors=5).fit(train_data[[f]],
+                train_data[target]) for f in numerical_features]
+        train_scores = [accuracy_score(train_data[target],
+            m.predict(train_data[[f]])) for m, f in zip(models,
+                numerical_features)
 
     # set the interest rate
     def set_interest_rate(self, rate):
