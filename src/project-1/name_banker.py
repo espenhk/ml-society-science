@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import pandas
 
 class NameBanker:
     
@@ -11,14 +13,30 @@ class NameBanker:
     def fit(self, X, y):
         self.data = [X, y]
         train_data, test_data = train_test_split(self.data, test_size=0.2)
+        print(type(train_data[0]))
+        print(train_data[0].index)
         # Using KNN, k=5
         target='Class' #TODO ??
         numerical_features = ['duration', 'age', 'residence time', 'installment', 'amount', 'duration', 'persons', 'credits']
-        models = [KNeighborsClassifier(n_neighbors=5).fit(train_data[[f]],
-                train_data[target]) for f in numerical_features]
-        train_scores = [accuracy_score(train_data[target],
-            m.predict(train_data[[f]])) for m, f in zip(models,
-                numerical_features)
+        if isinstance(train_data[0], pandas.core.frame.DataFrame):
+            models = \
+              [KNeighborsClassifier(n_neighbors=5).fit(train_data[0][[f]],
+                train_data[0]) for f in numerical_features]
+
+            train_scores = []
+            for m, f in zip(models, numerical_features):
+                val = accuracy_score(train_data[0],
+                        m.predict(train_data[0][[f]]))
+                print(type(val))
+                train_scores.append(val)
+                print("m: %s, f: %s" % (m, f))
+            # train_scores = [accuracy_score(train_data[0],
+                # m.predict(train_data[0][[f]])) for m, f in zip(models,
+                    # numerical_features)]
+        # plt.barh(range(len(features)), train_scores)
+        # plt.yticks(range(len(features)), features)
+        # plt.gcf().set_size_inches(10, 5)
+        # plt.show()
 
     # set the interest rate
     def set_interest_rate(self, rate):
