@@ -1,12 +1,18 @@
 import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import pandas
 
 class NameBanker:
-    
     # Fit the model to the data.  You can use any model you like to do
     # the fit, however you should be able to predict all class
     # probabilities
     def fit(self, X, y):
         self.data = [X, y]
+        self.model = KNeighborsClassifier(n_neighbors=5)
+        self.model.fit(X, y)
 
     # set the interest rate
     def set_interest_rate(self, rate):
