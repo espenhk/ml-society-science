@@ -11,7 +11,7 @@ class NameBanker:
     # probabilities
     def fit(self, X, y):
         self.data = [X, y]
-        self.model = KNeighborsClassifier(n_neighbors=5)
+        self.model = KNeighborsClassifier(n_neighbors=20)
         self.model.fit(X, y)
 
     # set the interest rate
