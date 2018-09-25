@@ -30,41 +30,41 @@ class NameBanker:
     def get_proba(self):
         return self.proba
 
-    # The expected utility of granting the loan or not. Here there are two actions:
+    # The expected utility of granting the loan or not. 
+    # Here there are two actions:
     # action = 0 do not grant the loan
     # action = 1 grant the loan
     #
     # Make sure that you extract the length_of_loan from the
-    # 2nd attribute of x. Then the return if the loan is paid off to you is amount_of_loan*(1 + rate)^length_of_loan
+    # 2nd attribute of x. Then the return if the loan is paid off to you
+    # is amount_of_loan*(1 + rate)^length_of_loan
     # The return if the loan is not paid off is -amount_of_loan.
     def expected_utility(self, x, action):
+        # See part 2 for comments on safeguard_rate and return_margin
         duration = x[0]
         amount = x[1]
-        # print("exp u:, len(x) = %d" % len(x))
-        # print(x)
-        paid_off = True
-        rate = self.rate
+        # we expect the average interest rate to never drop below today's
+        # rate, # this could be increased to safeguard against a declining
+        # interest rate.
+        safeguard_rate = 0
+        rate = self.rate - safeguard_rate
         return_win = amount*(1+rate)**duration
         return_loss = -amount
-        # TODO check if this is correct
         success_prob = self.predict_proba(x)
-        # print(success_prob)
         expected_return = (success_prob*return_win +
                            (1-success_prob)*return_loss)
 
         # Assume purely that if we get expect anything more than
         # the original amount back, we grant the loan. In practice,
         # you'd likely have a margin so you're making at least say 5%
-        # on every loan
+        # on every loan.
         return_margin = 0
-        # print("Exp ret: %s" % expected_return)
-        # print("Ret mar: %s" % return_margin)
-        # print("Aount  : %s" % amount)
-        if (expected_return + return_margin) > amount:
+        if (expected_return - amount*return_margin) > amount:
             action = 1
         else:
             action = 0
         return action
+
     # Return the best action. This is normally the one that maximises expected utility.
     # However, you are allowed to deviate from this if you can justify the reason.
     def get_best_action(self, x):
