@@ -59,7 +59,6 @@ print("%-30s %10.2f" %
         ("Name banker average utility:", (utility / n_tests)))
 
 
-"""
 # # # For RandomBanker
 ## Main code
 import random_banker
@@ -81,4 +80,3 @@ for iter in range(n_tests):
 print()
 print("%-30s %10.2f" %
         ("Random banker average utility:", (utility / n_tests)))
-"""
