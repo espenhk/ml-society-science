@@ -21,11 +21,10 @@ class NameBanker:
 
     # Predict the probability of failure for a specific person with data x
     def predict_proba(self, x):
-        return 0
+        self.proba = self.model.predict_proba(x)
+        return self.proba
 
-    # dummy value, assume 80% of loans are repaid
     def get_proba(self):
-        self.proba = 0.8
         return self.proba
 
     # The expected utility of granting the loan or not. Here there are two actions:
@@ -38,12 +37,15 @@ class NameBanker:
     def expected_utility(self, x, action):
         duration = x[0]
         amount = x[1]
+        # print("exp u:, len(x) = %d" % len(x))
+        # print(x)
         paid_off = True
         rate = self.rate
         return_win = amount*(1+rate)**duration
         return_loss = -amount
-        success_prob = self.get_proba()
-
+        # TODO check if this is correct
+        success_prob = self.predict_proba([x])[0][0]
+        # print(success_prob)
         expected_return = (success_prob*return_win +
                            (1-success_prob)*return_loss)
 
@@ -52,6 +54,9 @@ class NameBanker:
         # you'd likely have a margin so you're making at least say 5%
         # on every loan
         return_margin = 0
+        # print("Exp ret: %s" % expected_return)
+        # print("Ret mar: %s" % return_margin)
+        # print("Aount  : %s" % amount)
         if (expected_return + return_margin) > amount:
             action = 1
         else:
