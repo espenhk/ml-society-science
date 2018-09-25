@@ -21,7 +21,10 @@ class NameBanker:
 
     # Predict the probability of failure for a specific person with data x
     def predict_proba(self, x):
-        self.proba = self.model.predict_proba(x)
+        # data needs to be packed in a list, as the function expects a double array
+        prob = self.model.predict_proba([x])
+        # unpack, and we only need the first probability p, as the other one is (1-p)
+        self.proba = prob[0][0]
         return self.proba
 
     def get_proba(self):
@@ -44,7 +47,7 @@ class NameBanker:
         return_win = amount*(1+rate)**duration
         return_loss = -amount
         # TODO check if this is correct
-        success_prob = self.predict_proba([x])[0][0]
+        success_prob = self.predict_proba(x)
         # print(success_prob)
         expected_return = (success_prob*return_win +
                            (1-success_prob)*return_loss)
