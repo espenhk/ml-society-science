@@ -30,17 +30,17 @@ def test_decision_maker(X_test, y_test, interest_rate, decision_maker):
         if (action==1):
             if (good_loan != 1):
                 utility -= amount
-            else:
+            else:    
                 utility += amount*(pow(1 + interest_rate, duration) - 1)
     return utility
 
 
 ## Main code
 
-# # # For NameBanker
+
 ### Setup model
-import name_banker
-decision_maker = name_banker.NameBanker()
+import random_banker # this is a random banker
+decision_maker = random_banker.RandomBanker()
 interest_rate = 0.05
 
 ### Do a number of preliminary tests by splitting the data in parts
@@ -52,31 +52,7 @@ for iter in range(n_tests):
     decision_maker.set_interest_rate(interest_rate)
     decision_maker.fit(X_train, y_train)
     utility += test_decision_maker(X_test, y_test, interest_rate, decision_maker)
-    print(".", end='', flush=True),
 
-print()
-print("%-30s %10.2f" %
-        ("Name banker average utility:", (utility / n_tests)))
+print(utility / n_tests)
 
 
-# # # For RandomBanker
-## Main code
-import random_banker
-decision_maker = random_banker.RandomBanker()
-interest_rate = 0.05
-
-### Do a number of preliminary tests by splitting the data in parts
-# from sklearn.model_selection import train_test_split
-# n_tests = 100
-utility = 0
-for iter in range(n_tests):
-    X_train, X_test, y_train, y_test = train_test_split(X[encoded_features], X[target], test_size=0.2)
-    decision_maker.set_interest_rate(interest_rate)
-    decision_maker.fit(X_train, y_train)
-    utility += test_decision_maker(X_test, y_test, interest_rate, decision_maker)
-    print(".", end='', flush=True),
-
-
-print()
-print("%-30s %10.2f" %
-        ("Random banker average utility:", (utility / n_tests)))
