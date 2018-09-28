@@ -57,6 +57,7 @@ for iter in range(n_tests):
 print()
 print("%-30s %10.2f" %
         ("Name banker average utility:", (utility / n_tests)))
+print(decision_maker.data_ranges)
 
 
 """

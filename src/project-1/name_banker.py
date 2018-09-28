@@ -4,8 +4,36 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import pandas
+import random
+
 
 class NameBanker:
+
+    def __init__(self):
+        self.labels_seen = False
+        # created by running once looking at every new piece of data x
+        self.data_ranges = {'checking account balance_A12': [0, 1], 'age': [19, 75],
+            'credits': [1, 4], 'other installments_A143': [0, 1],
+            'housing_A152': [0, 1], 'employment_A74': [0, 1], 'purpose_A46': [0, 1],
+            'installment': [1, 4], 'property_A122': [0, 1],
+            'marital status_A92': [0, 1], 'purpose_A43': [0, 1],
+            'other debtors_A102': [0, 1], 'other debtors_A103': [0, 1],
+            'checking account balance_A14': [0, 1], 'job_A173': [0, 1],
+            'job_A174': [0, 1], 'duration': [4, 72], 'phone_A192': [0, 1],
+            'marital status_A94': [0, 1], 'purpose_A42': [0, 1], 'savings_A64': [0, 1],
+            'purpose_A48': [0, 1], 'employment_A72': [0, 1], 'purpose_A410': [0, 1],
+            'job_A172': [0, 1], 'marital status_A93': [0, 1], 'persons': [1, 2],
+            'property_A123': [0, 1], 'other installments_A142': [0, 1],
+            'credit history_A33': [0, 1], 'purpose_A41': [0, 1],
+            'credit history_A31': [0, 1], 'housing_A153': [0, 1],
+            'credit history_A32': [0, 1], 'savings_A65': [0, 1],
+            'credit history_A34': [0, 1], 'employment_A73': [0, 1],
+            'purpose_A44': [0, 1], 'amount': [250, 18424], 'employment_A75': [0, 1],
+            'savings_A62': [0, 1], 'purpose_A45': [0, 1], 'residence time': [1, 4],
+            'purpose_A49': [0, 1], 'savings_A63': [0, 1], 'property_A124': [0, 1],
+            'checking account balance_A13': [0, 1], 'foreign_A202': [0, 1]}
+        self.i = 0
+
     # Fit the model to the data.  You can use any model you like to do
     # the fit, however you should be able to predict all class
     # probabilities
@@ -13,6 +41,9 @@ class NameBanker:
         self.data = [X, y]
         self.model = KNeighborsClassifier(n_neighbors=50)
         self.model.fit(X, y)
+        # create dict of [min, max] values for every type of data
+
+
 
     # set the interest rate
     def set_interest_rate(self, rate):
@@ -50,6 +81,10 @@ class NameBanker:
         rate = self.rate - safeguard_rate
         return_win = amount*(1+rate)**duration
         return_loss = -amount
+        print("i: %d" % self.i)
+        self.i += 1
+        # noisify data
+        x = self.add_noise(x)
         success_prob = self.predict_proba(x)
         expected_return = (success_prob*return_win +
                            (1-success_prob)*return_loss)
@@ -72,3 +107,36 @@ class NameBanker:
         action=0
         action = self.expected_utility(x, action)
         return action
+    
+    def add_noise(self, x):
+        print(self.i)
+        # flip coin, if hit we change every attribute
+        change = random.random()
+        if change > 0.5:
+            for label in x.index:
+                # pick a random value within the observed [min, max] range for this datatype
+                x[label] = random.randint(self.data_ranges[label][0], self.data_ranges[label][1])
+        return x
+"""
+        self.data_ranges = {'checking account balance_A12': [0, 1], 'age': [19, 75],
+            'credits': [1, 4], 'other installments_A143': [0, 1],
+            'housing_A152': [0, 1], 'employment_A74': [0, 1], 'purpose_A46': [0, 1],
+            'installment': [1, 4], 'property_A122': [0, 1],
+            'marital status_A92': [0, 1], 'purpose_A43': [0, 1],
+            'other debtors_A102': [0, 1], 'other debtors_A103': [0, 1],
+            'checking account balance_A14': [0, 1], 'job_A173': [0, 1],
+            'job_A174': [0, 1], 'duration': [4, 72], 'phone_A192': [0, 1],
+            'marital status_A94': [0, 1], 'purpose_A42': [0, 1], 'savings_A64': [0, 1],
+            'purpose_A48': [0, 1], 'employment_A72': [0, 1], 'purpose_A410': [0, 1],
+            'job_A172': [0, 1], 'marital status_A93': [0, 1], 'persons': [1, 2],
+            'property_A123': [0, 1], 'other installments_A142': [0, 1],
+            'credit history_A33': [0, 1], 'purpose_A41': [0, 1],
+            'credit history_A31': [0, 1], 'housing_A153': [0, 1],
+            'credit history_A32': [0, 1], 'savings_A65': [0, 1],
+            'credit history_A34': [0, 1], 'employment_A73': [0, 1],
+            'purpose_A44': [0, 1], 'amount': [250, 18424], 'employment_A75': [0, 1],
+            'savings_A62': [0, 1], 'purpose_A45': [0, 1], 'residence time': [1, 4],
+            'purpose_A49': [0, 1], 'savings_A63': [0, 1], 'property_A124': [0, 1],
+            'checking account balance_A13': [0, 1], 'foreign_A202': [0, 1]}
+        self.i = 0
+"""
