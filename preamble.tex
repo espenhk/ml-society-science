@@ -14,7 +14,7 @@
 \usepackage{algpseudocode}
 \usepackage{mathrsfs}
 \usepackage{epsfig}
-\usepackage{subfigure}
+\usepackage{subcaption}
 \usepackage{makeidx} 
 \usepackage{colortbl}
 \usepackage{enumerate}
@@ -165,18 +165,20 @@
 \newcommand \BI {{\mathbb{I}}}
 \newcommand \BS {{\mathbb{S}}}
 
-\newcommand \bx {{\mathbf{x}}}
-\newcommand \by {{\mathbf{y}}}
-\newcommand \bu {{\mathbf{u}}}
-\newcommand \bw {{\mathbf{w}}}
-\newcommand \ba {{\mathbf{a}}}
-\newcommand \bz {{\mathbf{z}}}
-\newcommand \bat {{\mathbf{a}_t}}
-\newcommand \bh {{\mathbf{h}}}
-\newcommand \bo {{\mathbf{o}}}
-\newcommand \bp {{\mathbf{p}}}
-\newcommand \bs {{\mathbf{s}}}
-\newcommand \br {{\mathbf{r}}}
+\newcommand \bx {{\vectorsym{x}}}
+\newcommand \by {{\vectorsym{y}}}
+\newcommand \bu {{\vectorsym{u}}}
+\newcommand \bw {{\vectorsym{w}}}
+\newcommand \ba {{\vectorsym{a}}}
+\newcommand \bc {{\vectorsym{c}}}
+\newcommand \bz {{\vectorsym{z}}}
+\newcommand \bq {{\vectorsym{q}}}
+\newcommand \bat {{\vectorsym{a}_t}}
+\newcommand \bh {{\vectorsym{h}}}
+\newcommand \bo {{\vectorsym{o}}}
+\newcommand \bp {{\vectorsym{p}}}
+\newcommand \bs {{\vectorsym{s}}}
+\newcommand \br {{\vectorsym{r}}}
 
 \newcommand \SA {\mathscr{A}}
 \newcommand \SB {\mathscr{B}}
@@ -234,6 +236,7 @@
 \newcommand \Student {\mathop{\mathpzc{Student}}\nolimits}
 \newcommand \Bernoulli {\mathop{\mathpzc{Bernoulli}}\nolimits}
 \newcommand \BetaDist   {\mathop{\mathpzc{Beta}}\nolimits}
+\newcommand \Singular   {\mathop{\mathpzc{D}}\nolimits}
 \newcommand \GammaDist {\mathop{\mathpzc{Gamma}}\nolimits}
 \newcommand \Softmax{\mathop{\mathpzc{Softmax}}\nolimits}
 \newcommand \Exp{\mathop{\mathpzc{Exp}}\nolimits}
@@ -255,6 +258,7 @@
 \newcommand \Bay {\ensuremath{\mathscr{B}}}
 \newcommand \Adv {\ensuremath{\mathscr{A}}}
 
+\newcommand \step {\eta}
 
 \newcommand \Borel[1] {\FF(#1)}
 \newcommand \Probs[1] {\FM(#1)}
@@ -314,6 +318,7 @@
 \newcommand \reward {r}
 \newcommand \vreward {\vectorsym{r}}
 \newcommand \Rew {\rho}
+\newcommand \boutcome {\vectorsym{\omega}}
 \newcommand \outcome {\omega}
 \newcommand \Outcome {\Omega}
 \newcommand \act {a}
@@ -364,12 +369,16 @@
 
 \newcommand \eye {\matrixsym{I}}
 \newcommand \MA {\matrixsym{A}}
+\newcommand \MC {\matrixsym{C}}
 \newcommand \MX {\matrixsym{X}}
+\newcommand \MR {\matrixsym{R}}
 \newcommand \MY {\matrixsym{Y}}
 \newcommand \MB {\matrixsym{B}}
 \newcommand \MV {\matrixsym{V}}
 \newcommand \MW {\matrixsym{W}}
 \newcommand \MP {\matrixsym{P}}
+\newcommand \MZ {\matrixsym{Z}}
+
 \newcommand \vg {\vectorsym{\gamma}}
 \newcommand \vp {\vectorsym{p}}
 \newcommand \vs {\vectorsym{s}}
@@ -500,7 +509,6 @@ y expr=2*\thisrow{#5}
 \tikzstyle{hidden}=[dashed,draw=black,fill=red!10]
 \tikzstyle{RV}=[circle,draw=black,draw=blue!50,fill=blue!10,inner sep=0mm, minimum size=6mm]
 \tikzstyle{place}=[circle,draw=black,draw=blue!50,fill=blue!20,inner sep=0mm, minimum size=9mm]
-\tikzstyle{select}=[rectangle,draw=black,draw=blue!50,fill=blue!20,inner sep=0mm, minimum size=6mm]
 \tikzstyle{transition}=[rectangle,draw=black!50,fill=black!20,thick]
 \tikzstyle{observed}=[circle,draw=black,draw=blue!50,fill=blue!10,inner sep=0mm, minimum size=6mm]
 \tikzstyle{someset}=[circle,draw=black,minimum size=8mm]
@@ -511,7 +519,13 @@ y expr=2*\thisrow{#5}
 
 \tikzstyle{thickarrow}=[->, >=latex, line width=15pt, green!50]
 \tikzstyle{medarrow}=[->, >=latex,  line width=5pt]
+\tikzstyle{arrow}=[->,>=triangle 60]
 
+\tikzset{every picture/.style={
+    line width=1
+  }
+}
 
 \definecolor{dark-green}{rgb}{0,0.5,0}
+
 

@@ -2,7 +2,7 @@
 \usepackage{geometry}
 \usepackage[notheorems]{beamerarticle}
 
-
+\makeindex
 
 \mode<presentation>{
   % \useinnertheme{rectangles}
@@ -12,9 +12,7 @@
 }
 \input{../preamble}
 
-%\includeonly{database,privacy}
-%\includeonly{experiment-design}
-%\includeonly{networks}
+\includeonly{experiment-design}
 \title{Machine learning in science and society}
 \subtitle{From automated science to beneficial artificial intelligence}
 \author[C. Dimitrakakis]{Christos Dimitrakakis}
@@ -27,7 +25,7 @@
 \include{ml-intro}
 
 \chapter{Simple decision problems}
-
+\label{ch:decision-problems}
 \only<article>{This chapter deals with simple decision problems, whereby a decision maker (DM) makes a simple choice among many. In some of this problems the DM has to make a decision after first observing some side-information. Then the DM uses a \emph{decision rule} to assign a probability to each possible decision for each possible side-information. However, designing the decision rule is not trivial, as it relies on previously collected data. A higher-level decision includes choosing the decision rule itself. The problems of classification and regression fall within this framework. While most steps in the process can be automated and formalised, a lot of decisions are actual design choices made by humans. This creates scope for errors and misinterpretation of results.
 
 In this chapter, we shall formalise all these simple decision problems from the point of view of statistical decision theory. The first question is, given a real world application, what type of decision problem does it map to? Then, what kind of machine learning algorithms can we use to solve it? What are the underlying assumptions and how valid are our conclusions? 
@@ -51,9 +49,11 @@ In this chapter, we shall formalise all these simple decision problems from the 
 
 \chapter{Fairness}
 \only<article>{
-  When machine learning algorithms are applied at scale, it can be difficult to imagine
+  When machine learning algorithms are applied at scale, it can be difficult to imagine what their effects might be. In this part of the course, we consider notions of fairness as seen through the prism of conditional independence and meritocracy. The first notion requires that we look deeper into directed graphical models.
 }
+\include{graphical-models}
 \include{fairness}
+
 \include{credit}
 
 
@@ -66,17 +66,25 @@ In this chapter, we shall formalise all these simple decision problems from the 
 \include{hmm}
 \include{rnn}
 
-\chapter{Bandit problems}
+\chapter{Causality}
+\include{causality}
+
+\chapter{Bandit problems and experiment design}
 \include{bandit}
 \include{experiment-design}
 \chapter{Markov decision processes}
+\label{ch:mdp}
 \include{mdp}
 \chapter{Safety}
 \include{safety}
 
+\chapter{Index}
+\printindex
+
 
 \bibliographystyle{plainnat}
 \bibliography{../bibliography}
+
 
 \end{document}
 %%% Local Variables:
