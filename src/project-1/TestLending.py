@@ -37,13 +37,10 @@ def test_decision_maker(X_test, y_test, interest_rate, decision_maker):
 
 ## Main code
 
-
+# # # For NameBanker
 ### Setup model
-#import random_banker # this is a random banker
-#decision_maker = random_banker.RandomBanker()
-import aleksaw_banker
-decision_maker = aleksaw_banker.AlexBanker()
-
+import name_banker
+decision_maker = name_banker.NameBanker()
 interest_rate = 0.05
 
 ### Do a number of preliminary tests by splitting the data in parts
@@ -53,10 +50,36 @@ utility = 0
 for iter in range(n_tests):
     X_train, X_test, y_train, y_test = train_test_split(X[encoded_features], X[target], test_size=0.2)
     decision_maker.set_interest_rate(interest_rate)
-    print(iter)
     decision_maker.fit(X_train, y_train)
     utility += test_decision_maker(X_test, y_test, interest_rate, decision_maker)
+    print(".", end='', flush=True),
 
-print(utility / n_tests)
+print()
+print("%-30s %10.2f" %
+        ("Name banker average utility:", (utility / n_tests)))
+print(decision_maker.data_ranges)
 
 
+"""
+# # # For RandomBanker
+## Main code
+import random_banker
+decision_maker = random_banker.RandomBanker()
+interest_rate = 0.05
+
+### Do a number of preliminary tests by splitting the data in parts
+# from sklearn.model_selection import train_test_split
+# n_tests = 100
+utility = 0
+for iter in range(n_tests):
+    X_train, X_test, y_train, y_test = train_test_split(X[encoded_features], X[target], test_size=0.2)
+    decision_maker.set_interest_rate(interest_rate)
+    decision_maker.fit(X_train, y_train)
+    utility += test_decision_maker(X_test, y_test, interest_rate, decision_maker)
+    print(".", end='', flush=True),
+
+
+print()
+print("%-30s %10.2f" %
+        ("Random banker average utility:", (utility / n_tests)))
+"""

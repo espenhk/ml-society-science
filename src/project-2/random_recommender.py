@@ -39,7 +39,7 @@ class RandomRecommender:
     # Set the reward function r(a, y)
     def set_reward(self, reward):
         self.reward = reward
-    
+
     ##################################
     # Fit a model from patient data.
     #
