@@ -1,0 +1,24 @@
+N=5
+Trial 1: Name banker average utility:    999736.22
+Trial 2: Name banker average utility:   1032677.71
+Trial 3: Name banker average utility:   1036411.44
+
+N=10
+Trial 1: Name banker average utility:   1116964.89
+Trial 2: Name banker average utility:   1047010.26
+Trial 3: Name banker average utility:   1107132.27
+
+N=20
+Trial 1: Name banker average utility:   1177181.68
+Trial 2: Name banker average utility:   1129442.29
+Trial 3: Name banker average utility:   1093798.91
+
+N=50
+Trial 1: Name banker average utility:   1193372.49
+Trial 2: Name banker average utility:   1142856.58
+Trial 3: Name banker average utility:   1153972.81
+
+N=100
+Trial 1: Name banker average utility:   1196260.24
+Trial 2: Name banker average utility:   1160266.10
+Trial 3: Name banker average utility:   1214040.23
