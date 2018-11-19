@@ -39,10 +39,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.neighbors import KNeighborsClassifier
-#TODO old?
-from sklearn.cluster import KMeans
-from sklearn.ensemble import RandomForestClassifier
-from causality_exercises import BasicPolicy, StandardModel
 
 class MyRecommender:
 
@@ -98,6 +94,7 @@ class MyRecommender:
         X = np.concatenate((data, actions), axis=1)
         outcome = outcome.flat
 
+        # TODO run this by endex Monday
         # Bootstrapping for K
         K = 15
         k_accuracy = np.zeros(K)
@@ -126,71 +123,25 @@ class MyRecommender:
     ## Estimate the utility of a specific policy from historical data.
     ## If the policy is None, return use the historical policy
     def estimate_utility(self, data, actions, outcome, policy=None):
-        estimate = 0
-        T = len(data)
-        if policy == None:
-            for t in range(T):
-                estimate += reward(actions[t], outcome[t])
-            estimate /= T
-        else: # policy exists,
-            # is this an ap
-            # In a response to @89 on Piazza, you say
-            # "(...) you should use your fitted model, rather than the
-            # simple normal model of the exercise *if you are not using*
-            # importance sampling."
-            # Thus, I use importance sampling, with StandardModel
-            # as used in Exercise16() from src/causality/exercises.py,
-            # and the given policy as policy
-            theta = 0.1*np.random.normal(size=2)
-            model = StandardModel(theta)
-            # policy = BasicPolicy(0.1)
-            n_samples = 10
-            n_actions = policy.get_n_actions()
-            a = np.empty(T, dtype=int)
-            y = np.zeros(n_samples)
-            hat_theta = np.zeros(2)
-            hat_pi = np.zeros(2)
-            hat_U = 0
-            counts = np.zeros(2)
-            for t in range(n_samples):
-                a[t] = int(policy.get_action())
-                hat_pi[a[t]] += 1
-                y[t] = model.get_response(a[t])
-                counts[a[t]] += 1.0
-                hat_theta[a[t]] += y[t]
-                hat_U += y[t]
+        if policy is None:
+            proba = self.predict_proba(data, actions)[outcome]
+            rewa = self.reward(actions, outcome)
+            result = proba * rewa
+            return result
+        else:
+            # return policy.estimate_utility(data, actions, outcome)
+            return None
 
-            hat_pi /= sum(hat_pi)
-            hat_U /= n_samples
-            hat_theta /= ocunts
-            print("Parameters", theta)
-            print("Estimate parameters", hat_theta, "Policy:", hat_pi,
-                    "Utility:", hat_U)
-
-            ## How do we estimate the utility of some other policy pi?
-
-            ## Method 1: Use importance sampling
-            ## E_P U = \sum_x U(x) P(x) = \sum_x U(x) P(x)/Q(x) Q(x)
-            ## Approximated by  \sum_t U(x_t)P(x_t)/Q(x_t) x_t \sim Q
-            ## This is how to estimate the utility of another policy using just the data.
-            alt_pi = np.zeros(n_actions)
-            alt_pi[np.argmax(hat_theta)] = 1
-            alt_hat_U = 0
-            for t in range(n_samples):
-                alt_hat_U += y[t] * alt_pi[a[t]] / hat_pi[a[t]]
-
-            alt_hat_U /= n_samples
-            print("New policy: ", alt_pi)
-            print("Estimated Utility:", hat_U, alt_hat_U)
-            estimate = alt_hat_U
-
-        return estimate
 
     # Return a distribution of effects for a given person's data and a specific treatment
     def predict_proba(self, data, treatment):
-        self.predictor = self.clf.predict_proba(np.append(data,
-            treatment).reshape(1, -1))[:,1]
-        return self.predictor
+        X = np.append(data, treatment).reshape(1,-1)
+        return self.model.predict_proba(X)[0]
+
+    # TODO who dis TODO CONT
+    def get_action_probabilities(self, user_data):
+        return [self.predict_proba(user_data, a) for a in range(self.n_actions)]
+
 
     # Return recommendations for a specific user data
     def recommend(self, user):
