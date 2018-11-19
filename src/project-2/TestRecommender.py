@@ -7,7 +7,7 @@ def test_policy(generator, policy, reward_function, T):
     policy.set_reward(reward_function)
     u = 0
     for t in range(T):
-       x = generator.generate_features()
+        x = generator.generate_features()
         a = policy.recommend(x)
         y = generator.generate_outcome(x, a)
         r = reward_function(a, y)
