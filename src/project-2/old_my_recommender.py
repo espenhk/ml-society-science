@@ -31,31 +31,20 @@
 #     this is how it's intended, assumptions are commented below.
 #     Error bounds lack.
 #   - Improved policies not done.
-# TODO put my final touches on this
 
-import numpy as np
 from sklearn import linear_model
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import SelectKBest, chi2
-from sklearn.neighbors import KNeighborsClassifier
-#TODO old?
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
+import numpy as np
 from causality_exercises import BasicPolicy, StandardModel
 
 class MyRecommender:
 
     #################################
     # Initialise
-    # Set default no. of actions and outcomes,
-    # since these can differ between historical data
-    # TODO expand
-    # and in other policy
     #
-    def __init__(self, n_actions, n_outcomes):
-        self.n_actions = n_actions
-        self.n_outcomes = n_outcomes
+
+    def __init__(self):
         self.reward = self._default_reward
 
     ## By default, the reward is just equal to the outcome, as the actions play no role
@@ -75,53 +64,21 @@ class MyRecommender:
     # meaning to different parts of the data, and use a supervised
     # model instead.
     def fit_data(self, data):
-        observations = data[:, :128]
-        # {0,1} X {0,1} -> {0, 1, 2, 3}
-        symptoms = data[:, 128] + data[:, 129]*2
-        # TODO params?
-        selector = SelectKBest(chi2, k=10).fit(observations, symptoms)
-        feature_list = selector.get_support(indices=True) # sel features
-
-        new_data = np.concatenate((observations[:, feature_list],
-                                   data[:, 128].reshape(data.shape[0], 1),
-                                   data[:, 129].reshape(data.shape[0], 1)),
-                                   axis=1)
-        self.mask = np.append(feature_list, (128, 129))
-        return new_data
+        # TODO parameters?
+        nc = 8
+        self.model = Kmeans(n_clusters=nc)
+        self.model.fit(data)
+        return self.model
 
     ## Fit a model from patient data, actions and their effects
     ## Here we assume that the outcome is a direct function of data and actions
-    ## - sets model to self.model
     def fit_treatment_outcome(self, data, actions, outcome):
+        print("Fitting treatment outcomes")
+        self.X = np.hstack((data, actions))
+        self.y = outcome
+        self.clf = RandomForestClassifier().fit(self.X, self.y)
 
-        n_samples = 5
-        X = np.concatenate((data, actions), axis=1)
-        outcome = outcome.flat
-
-        # Bootstrapping for K
-        K = 15
-        k_accuracy = np.zeros(K)
-        for k in range(K):
-            for i in range(n_samples):
-                train_set, test_set = train_test_split(X, test_size = 0.2)
-                # pick len(train_set) indexes in (0 , len(train_set)-1)
-                train_sample_index = np.random.choice(len(train_set),
-                                                      len(train_set))
-                test_sample_index = np.random.choice(len(test_set),
-                                                     len(test_set))
-                # use picked indexes to pick data points with
-                # replacement for bootstrap
-                k_model = KNeighborsClassifier(n_neighbors=k+1).fit(X[train_sample_index], outcome[train_sample_index])
-                k_accuracy[k]+= accuracy_score( outcome[test_sample_index],
-                        k_model.predict(X[test_sample_index]) )
-            k_accuracy[k] /= n_samples
-        k = np.argmax(k_accuracy[1:]) + 1
-        # Bootstrap end
-
-        # hard set k to avoid running bootstrap all the time
-        # k = 19
-
-        self.model = KNeighborsClassifier(n_neighbors = k).fit(X, outcome)
+        return self.clf
 
     ## Estimate the utility of a specific policy from historical data.
     ## If the policy is None, return use the historical policy
