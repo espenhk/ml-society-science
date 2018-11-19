@@ -98,8 +98,11 @@ class MyRecommender:
         # Bootstrapping for K
         K = 15
         k_accuracy = np.zeros(K)
+        print("Bootstrap BEGIN")
         for k in range(K):
+            print("K = %d" % k)
             for i in range(n_samples):
+                print("%d " % i, end="", flush=True)
                 train_set, test_set = train_test_split(X, test_size = 0.2)
                 # pick len(train_set) indexes in (0 , len(train_set)-1)
                 train_sample_index = np.random.choice(len(train_set),
@@ -113,6 +116,8 @@ class MyRecommender:
                         k_model.predict(X[test_sample_index]) )
             k_accuracy[k] /= n_samples
         k = np.argmax(k_accuracy[1:]) + 1
+
+        print("Bootstrap END, k = %d" % k)
         # Bootstrap end
 
         # hard set k to avoid running bootstrap all the time
@@ -129,8 +134,8 @@ class MyRecommender:
             result = proba * rewa
             return result
         else:
-            # return policy.estimate_utility(data, actions, outcome)
-            return None
+            return policy.estimate_utility(data, actions, outcome)
+            # return None
 
 
     # Return a distribution of effects for a given person's data and a specific treatment

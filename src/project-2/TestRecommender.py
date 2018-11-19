@@ -28,8 +28,8 @@ smoker = features[:, 1]
 gene_expr = features[:, 2:128]
 
 import data_generation
-import random_recommender
-policy_factory = random_recommender.RandomRecommender
+import my_recommender
+policy_factory = my_recommender.MyRecommender
 #import reference_recommender
 #policy_factory = reference_recommender.RandomRecommender
 
