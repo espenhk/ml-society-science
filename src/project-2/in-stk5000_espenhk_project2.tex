@@ -1,0 +1,164 @@
+%
+%       File: in-stk5000_espenhk_project2.tex
+%
+\documentclass[a4paper]{article}
+\usepackage{verbatim}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows}
+\usepackage{pgf}
+
+% Norsk UiO LaTeX ftw
+%\usepackage[norsk]{babel}
+%\usepackage{uiofont}
+%\usepackage[sc, osf]{mathpazo}
+%\usepackage{textcomp}
+\usepackage{parskip}
+
+\usepackage{multicol}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{listingsutf8}
+\usepackage{booktabs}
+\usepackage{amssymb,amsthm,mathrsfs,amsfonts,dsfont}
+\usepackage{mathalfa}
+\usepackage{graphicx}
+\usepackage[draft]{todonotes}
+%\usepackage[disable]{todonotes}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{float}
+% double brackets
+\usepackage{stmaryrd}
+% block quotes
+\usepackage{csquotes}
+% footnotes at bottom of page
+\usepackage[bottom]{footmisc}
+
+
+\begin{comment}
+% subfigure prototype
+  \begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{gull}
+      \caption{A gull}
+      \label{fig:gull}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+                                                    %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{tiger}
+      \caption{A tiger}
+      \label{fig:tiger}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+                                                                                        %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{mouse}
+      \caption{A mouse}
+      \label{fig:mouse}
+    \end{subfigure}
+    \caption{Pictures of animals}\label{fig:animals}
+  \end{figure}
+\end{comment}
+
+% Allow optional matrix line heights
+\makeatletter
+\renewcommand*\env@matrix[1][\arraystretch]{%
+  \edef\arraystretch{#1}%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols c}}
+\makeatother
+
+% Re-use a figure, create duplicate with same figure number
+% \begin{reusefigure}[<float spec>]{<ref>}
+\newenvironment{reusefigure}[2][htbp]{
+  \addtocounter{figure}{-1}%
+   \renewcommand{\theHfigure}{dupe-fig}% If you're using hyperref
+   \renewcommand{\thefigure}{\ref{#2}}% Figure counter is \ref
+    % Avoid placing figure in LoF
+   \renewcommand{\addcontentsline}[3]{\begin{figure}[#1]}{\end{figure}}
+}
+
+% Pimp my QED, vec
+\renewcommand\qedsymbol{$\blacksquare$}
+\renewcommand{\vec}[1]{\textbf{#1}}
+
+% Shortcuts for naturals, integers (zahlen), rationals and reals
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\zahl}{\mathbb{Z}}
+\newcommand{\rat}{\mathbb{Q}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\eps}{\varepsilon}
+
+% Circled pretty numbers
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+              \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={æ}{{\ae}}1 {ø}{{\o}}1 {å}{{\aa}}1{•}{{$\cdot$}}1,
+    language=Python
+}
+
+% Headers and footers
+\usepackage{fancyhdr}
+ 
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{IN-STK5000}
+\chead{Espen H. Kristensen (espenhk)}
+\rhead{Fall 2018}
+\cfoot{\thepage}
+
+\lstset{style=mystyle}
+
+\begin{document}
+%\usetheme{MathDept}
+\title{IN-STK5000 presentation WIP}
+\author{Espen H. Kristensen (espenhk)}
+\maketitle
+\todo{complete title}
+
+\listoftodos
+
+\section{Historical data}
+\todo{p1 historical data: discovering structure in data}
+\todo{p1 historical data: measuring effect of actions}
+
+\section{Improved policies}
+\subsection*{Exercise 1}
+\subsection*{b)}
+\subsection*{c)}
+
+\clearpage
+whathwatwha
+\end{document}
