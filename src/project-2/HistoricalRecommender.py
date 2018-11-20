@@ -40,7 +40,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.neighbors import KNeighborsClassifier
 
-class ImprovedRecommender:
+class HistoricalRecommender:
 
     #################################
     # Initialise
@@ -92,10 +92,11 @@ class ImprovedRecommender:
     def fit_treatment_outcome(self, data, actions, outcome):
 
         n_samples = 5
-        X = np.concatenate((data, actions), axis=1)
-        # print(X.shape)
-        # print(outcome.shape)
-        outcome = outcome.flat
+        # X = np.concatenate((data, actions), axis=1)
+        # outcome = outcome.flat
+        # print(data.shape)
+        # print(actions.shape)
+        actions = actions.flat
 
         # TODO first test of this gives k=1, seems bad
         # Bootstrapping for K
@@ -127,10 +128,10 @@ class ImprovedRecommender:
 
         # hard set k to avoid running bootstrap all the time
         # k = 1
-        k = 25
+        k = 2
         print("k neighbors: %d" % k)
 
-        self.model = KNeighborsClassifier(n_neighbors = k).fit(X, outcome)
+        self.model = KNeighborsClassifier(n_neighbors = k).fit(data, actions)
 
     ## Estimate the utility of a specific policy from historical data.
     ## If the policy is None, return use the historical policy
@@ -146,8 +147,9 @@ class ImprovedRecommender:
 
 
     # Return a distribution of effects for a given person's data and a specific treatment
+    # Note: Historical uses only data
     def predict_proba(self, data, treatment):
-        X = np.append(data, treatment).reshape(1,-1)
+        X = data.reshape(1,-1)
         return self.model.predict_proba(X)[0]
 
     def get_action_probabilities(self, user_data):
@@ -156,11 +158,13 @@ class ImprovedRecommender:
 
     # Return recommendations for a specific user data
     def recommend(self, user_data):
-        s = np.zeros((self.n_actions, self.n_outcomes))
-        for i in range(s.shape[0]):
-            for j in range(s.shape[1]):
-                s[i, j] = self.estimate_utility(user_data, i, j)
-        action = np.unravel_index(s.argmax(), s.shape)[0]
+        # Historical is independent of treatment, so just use 0 as
+        # dummy treatment value
+        probs = self.predict_proba(user_data, 0)
+        if probs[0] > probs[1]:
+            action = 0
+        else:
+            action = 1
         return action
 
     # Observe the effect of an action

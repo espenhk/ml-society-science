@@ -28,15 +28,16 @@ smoker = features[:, 1]
 gene_expr = features[:, 2:128]
 
 import data_generation
-import my_recommender
-policy_factory = my_recommender.MyRecommender
-#import reference_recommender
-#policy_factory = reference_recommender.RandomRecommender
+import ImprovedRecommender
+import HistoricalRecommender
+# policy_factory = ImprovedRecommender.ImprovedRecommender
+policy_factory = HistoricalRecommender.HistoricalRecommender
 
 import time
 
 ## First test with the same number of treatments
 start_time = time.time()
+print(" USING %s" % policy_factory.__name__)
 print("---- Testing with only two treatments ----")
 
 print("Setting up simulator")
@@ -58,7 +59,6 @@ policy.final_analysis()
 end_time = time.time()
 print("time taken to test: %.3f seconds" % (end_time - start_time))
 
-"""
 start_time = time.time()
 ## First test with the same number of treatments
 print("--- Testing with an additional experimental treatment and 126 gene silencing treatments ---")
@@ -78,7 +78,6 @@ print("Final analysis of results")
 policy.final_analysis()
 end_time = time.time()
 print("time taken to test: %.3f seconds" % (end_time - start_time))
-"""
 
 
 
