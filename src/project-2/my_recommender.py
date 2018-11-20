@@ -56,7 +56,8 @@ class MyRecommender:
 
     ## By default, the reward is just equal to the outcome, as the actions play no role
     def _default_reward(self, action, outcome):
-        return outcome
+        # return outcome
+        return (-0.1)*action + outcome
 
     # Set the reward function r(a, y)
     def set_reward(self, reward):
@@ -94,8 +95,9 @@ class MyRecommender:
         X = np.concatenate((data, actions), axis=1)
         outcome = outcome.flat
 
-        # TODO run this by endex Monday
+        # TODO first test of this gives k=1, seems bad
         # Bootstrapping for K
+        """
         K = 15
         k_accuracy = np.zeros(K)
         print("Bootstrap BEGIN")
@@ -119,9 +121,12 @@ class MyRecommender:
 
         print("Bootstrap END, k = %d" % k)
         # Bootstrap end
+        """
 
         # hard set k to avoid running bootstrap all the time
-        # k = 19
+        # k = 1
+        k = 25
+        print("k: %d" % k)
 
         self.model = KNeighborsClassifier(n_neighbors = k).fit(X, outcome)
 
@@ -134,8 +139,8 @@ class MyRecommender:
             result = proba * rewa
             return result
         else:
-            return policy.estimate_utility(data, actions, outcome)
-            # return None
+            # return policy.estimate_utility(data, actions, outcome)
+            return None
 
 
     # Return a distribution of effects for a given person's data and a specific treatment
@@ -149,16 +154,23 @@ class MyRecommender:
 
 
     # Return recommendations for a specific user data
-    def recommend(self, user):
-        print("Recommending")
-        # note: this default assigment handles case
-        # (user,0,0,0) > # (user,1,0,0)
-        self.treatment = 0
-        if self.estimate_utility(user,0,0,0) <= self.estimate_utility(user,1,0,0):
-            self.treatment = 1
-        return self.treatment
+    def recommend(self, user_data):
+        s = np.zeros((self.n_actions, self.n_outcomes))
+        for i in range(s.shape[0]):
+            for j in range(s.shape[1]):
+                s[i, j] = self.estimate_utility(user_data, i, j)
+        action = np.unravel_index(s.argmax(), s.shape)[0]
+        return action
 
     # Observe the effect of an action
     def observe(self, user, action, outcome):
         # TODO implement
+        return None
+
+    # After all the data has been obtained, do a final analysis. This can consist of a number of things:
+    # 1. Recommending a specific fixed treatment policy
+    # 2. Suggesting looking at specific genes more closely
+    # 3. Showing whether or not the new treatment might be better than the old, and by how much.
+    # 4. Outputting an estimate of the advantage of gene-targeting treatments versus the best fixed treatment
+    def final_analysis(self):
         return None

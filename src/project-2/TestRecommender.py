@@ -33,7 +33,10 @@ policy_factory = my_recommender.MyRecommender
 #import reference_recommender
 #policy_factory = reference_recommender.RandomRecommender
 
+import time
+
 ## First test with the same number of treatments
+start_time = time.time()
 print("---- Testing with only two treatments ----")
 
 print("Setting up simulator")
@@ -46,11 +49,17 @@ policy.fit_treatment_outcome(features, actions, outcome)
 ## Run an online test with a small number of actions
 print("Running an online test")
 n_tests = 1000
+# n_tests = 100
+# TODO policy somehow becomes int here, or herein
 result = test_policy(generator, policy, default_reward_function, n_tests)
 print("Total reward:", result)
 print("Final analysis of results")
 policy.final_analysis()
+end_time = time.time()
+print("time taken to test: %.3f seconds" % (end_time - start_time))
 
+"""
+start_time = time.time()
 ## First test with the same number of treatments
 print("--- Testing with an additional experimental treatment and 126 gene silencing treatments ---")
 print("Setting up simulator")
@@ -62,12 +71,14 @@ print("Fitting historical data to the policy")
 policy.fit_treatment_outcome(features, actions, outcome)
 ## Run an online test with a small number of actions
 print("Running an online test")
-n_tests = 1000
+# n_tests = 1000
 result = test_policy(generator, policy, default_reward_function, n_tests)
 print("Total reward:", result)
 print("Final analysis of results")
 policy.final_analysis()
-
+end_time = time.time()
+print("time taken to test: %.3f seconds" % (end_time - start_time))
+"""
 
 
 
