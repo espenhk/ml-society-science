@@ -1,3 +1,4 @@
+
 # -*- Mode: python -*-
 # A simple reference recommender
 #
@@ -27,7 +28,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.neighbors import KNeighborsClassifier
 
-class HistoricalRecommender:
+class AdaptiveRecommender:
 
     #################################
     # Initialise
@@ -40,9 +41,9 @@ class HistoricalRecommender:
         self.n_outcomes = n_outcomes
         self.reward = self._default_reward
 
-    ## This is the reward function given as (2.2) in the exercise text
+    ## By default, the reward is just equal to the outcome, as the actions play no role
     def _default_reward(self, action, outcome):
-        # the (-0.1) factor means giving treatment must outperform placebo by 10%.
+        # return outcome
         return (-0.1)*action + outcome
 
     # Set the reward function r(a, y)
@@ -57,8 +58,7 @@ class HistoricalRecommender:
     # neural network is a valid choice.  However, you can give special
     # meaning to different parts of the data, and use a supervised
     # model instead.
-    #
-    # NOTE: this function isn't in use.
+    # NOTE: this isn't in use.
     def fit_data(self, data):
         observations = data[:, :128]
         # {0,1} X {0,1} -> {0, 1, 2, 3}
@@ -76,72 +76,82 @@ class HistoricalRecommender:
     ## Fit a model from patient data, actions and their effects
     ## Here we assume that the outcome is a direct function of data and actions
     ## - sets model to self.model
-    ## We use a K-Nearest Nea,ighbors classifier to fit P(a|x)
-    def fit_treatment_outcome(self, data, actions, outcomes):
-
+    ## We use a K-Nearest Neighbors classifier to fit P(y|a,x)
+    def fit_treatment_outcome(self, data, actions, outcome):
         # save as historical data
         self.hist_data = data
         self.hist_actions = actions
-        self.hist_outcomes = outcomes
+        self.hist_outcomes = outcome
 
-        actions = actions.flat
+        n_samples = 5
+        # print(data.shape, actions.shape)
+        X = np.concatenate((data, actions), axis=1)
+        # print(X.shape)
+        # print(outcome.shape)
+        outcome = outcome.flat
 
-        K = 15
+        K = 25
         k_accuracy = np.zeros(K)
-        # Change this flag to use the bootstrap.
+        # This is a bootstrap to find k. It consistently recommends
+        # k = 1 for both Historical and ImprovedRecommender, but
+        # trial and error suggests k = 2 and k = 25, respectively
         use_bootstrap = False
-        # This is a bootstrap to find k.
-        # See notes on issues with this in my report.
         if use_bootstrap:
-            n_samples = 5
             print("Bootstrap for k begin, K = %d" % K)
             for k in range(K):
                 print("testing k = %d" % k)
                 for i in range(n_samples):
-                    train_set, test_set = \
-                        train_test_split(data, test_size = 0.2)
-                    # pick len(train_set) indexes
-                    train_sample_index = \
-                        np.random.choice(len(train_set),
-                                         len(train_set))
-                    test_sample_index = \
-                        np.random.choice(len(test_set),
-                                         len(test_set))
-                    # use picked indexes to pick data points
-                    # with replacement for bootstrap
+                    train_set, test_set = train_test_split(data, test_size = 0.2)
+                    # pick len(train_set) indexes in (0 , len(train_set)-1)
+                    train_sample_index = np.random.choice(len(train_set),
+                                                        len(train_set))
+                    test_sample_index = np.random.choice(len(test_set),
+                                                        len(test_set))
+                    # use picked indexes to pick data points with
+                    # replacement for bootstrap
                     k_model = KNeighborsClassifier(n_neighbors=k+1).fit(data[train_sample_index], actions[train_sample_index])
-                    k_accuracy[k] += accuracy_score( actions[test_sample_index], k_model.predict(data[test_sample_index]) )
+                    k_accuracy[k]+= accuracy_score( actions[test_sample_index],
+                            k_model.predict(data[test_sample_index]) )
+                print(k_accuracy)
                 k_accuracy[k] /= n_samples
+                print(k_accuracy)
             k = np.argmax(k_accuracy[1:]) + 1
 
             print("Bootstrap END, k = %d" % k)
+            # Bootstrap end
         else: # don't use bootstrap for k
             # hard set k to avoid running bootstrap all the time
-            k = 2
-        print("k neighbors: %d" % k)
+            k = 25
+        # print("k neighbors: %d" % k)
 
-        self.model = KNeighborsClassifier(n_neighbors = k).fit(data, actions)
+        self.model = KNeighborsClassifier(n_neighbors = k).fit(X, outcome)
 
     ## Estimate the utility of a specific policy from historical data.
-    def estimate_utility(self, data, actions, outcomes, policy=None):
-        if policy == None: # use historical data
-            T = len(self.hist_data)
-            estimate = 0
-            for i in range(T):
-                r_t = self.reward(self.hist_actions[i],
-                                  self.hist_outcomes[i])
-                estimate += r_t
-            estimate /= T
-            return estimate
-        else:
-            return policy.estimate_utility(data, actions, outcomes)
+    ## If the policy is None, use the improved policy
+    ## NOTE: the involvement of historical data comes
+    def estimate_utility(self, data, actions, outcome, policy=None):
+        if policy is None:
+            if data.ndim == 1: # only one user, action and outcome
+                proba = self.predict_proba(data, actions)[outcome]
+                rewa = self.reward(actions, outcome)
+                result = proba * rewa
+                return result
+            elif data.ndim == 2: # full dataset
+                estimate = 0
+                T = len(data)
+                for i in range(T):
+                    res = self.estimate_utility(data[i], actions[i], outcome[i])
+                    estimate += res
+                estimate /= T
+                return estimate
 
+        else:
+            return policy.estimate_utility(data, actions, outcome)
 
 
     # Return a distribution of effects for a given person's data and a specific treatment
-    # NOTE: only uses data, as this is the only input to the model
     def predict_proba(self, data, treatment):
-        X = data.reshape(1,-1)
+        X = np.append(data, treatment).reshape(1,-1)
         return self.model.predict_proba(X)[0]
 
     def get_action_probabilities(self, user_data):
@@ -150,17 +160,27 @@ class HistoricalRecommender:
 
     # Return recommendations for a specific user data
     def recommend(self, user_data):
-        # Historical is independent of treatment, so just use 0 as
-        # dummy treatment value
-        probs = self.predict_proba(user_data, 0)
-        if probs[0] > probs[1]:
-            action = 0
-        else:
-            action = 1
+        s = np.zeros((self.n_actions, self.n_outcomes))
+        for i in range(s.shape[0]):
+            for j in range(s.shape[1]):
+                s[i, j] = self.estimate_utility(user_data, i, j)
+        action = np.unravel_index(s.argmax(), s.shape)[0]
         return action
 
     # Observe the effect of an action
     def observe(self, user, action, outcome):
+        user = np.reshape(user, (1, len(user)))
+        self.hist_data = np.r_[self.hist_data, user]
+
+        self.hist_actions = np.append(self.hist_actions, action)
+        self.hist_actions = np.reshape(self.hist_actions, (len(self.hist_actions), 1))
+        self.hist_outcomes = np.append(self.hist_outcomes, outcome)
+
+        # change this to refit model more rarely, for instance with every 100 observed
+        refit_every = 100
+        if len(self.hist_actions) % refit_every == 0:
+            print((len(self.hist_actions)-10000), end=", ", flush=True)
+            self.fit_treatment_outcome(self.hist_data, self.hist_actions, self.hist_outcomes)
         return None
 
     # After all the data has been obtained, do a final analysis. This can consist of a number of things:

@@ -1,16 +1,1 @@
-\contentsline {todo}{complete title}{1}{section*.1}
-\contentsline {todo}{Figure: p1 historical data: discovering structure in data}{1}{section.1}
-\contentsline {todo}{Figure: p1 historical data: measuring effect of actions}{1}{section.1}
-\contentsline {todo}{Figure: implement estimate utility on historical data}{2}{section*.3}
-\contentsline {todo}{Figure: measure utility of historical policy on historical data}{2}{section*.3}
-\contentsline {todo}{Figure: provide error bounds, explain}{2}{section*.3}
-\contentsline {todo}{Figure: find improved policy}{3}{section*.4}
-\contentsline {todo}{Figure: calculate expected utility of improved policy from historical data, implement in estimate utility}{3}{section*.4}
-\contentsline {todo}{Figure: Create HistoricalRecommender}{3}{section*.5}
-\contentsline {todo}{Figure: Create ImprovedRecommender}{3}{section*.5}
-\contentsline {todo}{Figure: comment differences from exercise 2}{4}{section*.5}
-\contentsline {todo}{Figure: Create AdaptiveRecommender}{4}{section*.6}
-\contentsline {todo}{Figure: Add case 2, action 2 = improved treatment}{4}{section*.6}
-\contentsline {todo}{Figure: plan to maximize expected no. of treated}{4}{section*.6}
-\contentsline {todo}{Figure: report both by exp no. of treated and most effective policy}{5}{section*.6}
-\contentsline {todo}{Figure: implement final analysis (see pts 1-4)}{5}{section*.6}
+\contentsline {todo}{check all code segments have correct line ranges}{1}{section*.2}

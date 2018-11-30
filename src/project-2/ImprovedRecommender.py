@@ -20,19 +20,6 @@
 # - recommend
 # - observe
 
-# NOTES: I haven't had time to thoroughly test this, nor to migrate
-# it to a notebook for more thorough comments. This will be done
-# by the next deadline.
-# The parts solved in this delivery:
-# Exercise 1:
-#   - K-means implemented in fit(), but not tested. Rest not done.
-# Exercise 2:
-#   - estimate_utility implemented, but not tested. Not sure
-#     this is how it's intended, assumptions are commented below.
-#     Error bounds lack.
-#   - Improved policies not done.
-# TODO put my final touches on this
-
 import numpy as np
 from sklearn import linear_model
 from sklearn.metrics import accuracy_score
@@ -46,7 +33,6 @@ class ImprovedRecommender:
     # Initialise
     # Set default no. of actions and outcomes,
     # since these can differ between historical data
-    # TODO expand
     # and in other policy
     #
     def __init__(self, n_actions, n_outcomes):
@@ -71,11 +57,11 @@ class ImprovedRecommender:
     # neural network is a valid choice.  However, you can give special
     # meaning to different parts of the data, and use a supervised
     # model instead.
+    # NOTE: this isn't in use.
     def fit_data(self, data):
         observations = data[:, :128]
         # {0,1} X {0,1} -> {0, 1, 2, 3}
         symptoms = data[:, 128] + data[:, 129]*2
-        # TODO params?
         selector = SelectKBest(chi2, k=10).fit(observations, symptoms)
         feature_list = selector.get_support(indices=True) # sel features
 
@@ -89,60 +75,73 @@ class ImprovedRecommender:
     ## Fit a model from patient data, actions and their effects
     ## Here we assume that the outcome is a direct function of data and actions
     ## - sets model to self.model
+    ## We use a K-Nearest Neighbors classifier to fit P(y|a,x)
     def fit_treatment_outcome(self, data, actions, outcome):
+        # save as historical data
+        self.hist_data = data
+        self.hist_actions = actions
+        self.hist_outcomes = outcomes
 
         n_samples = 5
         X = np.concatenate((data, actions), axis=1)
-        # print(X.shape)
-        # print(outcome.shape)
         outcome = outcome.flat
 
-        # TODO first test of this gives k=1, seems bad
-        # Bootstrapping for K
-        """
-        K = 15
+        K = 25
         k_accuracy = np.zeros(K)
-        print("Bootstrap BEGIN")
-        for k in range(K):
-            print("K = %d" % k)
-            for i in range(n_samples):
-                print("%d " % i, end="", flush=True)
-                train_set, test_set = train_test_split(X, test_size = 0.2)
-                # pick len(train_set) indexes in (0 , len(train_set)-1)
-                train_sample_index = np.random.choice(len(train_set),
-                                                      len(train_set))
-                test_sample_index = np.random.choice(len(test_set),
-                                                     len(test_set))
-                # use picked indexes to pick data points with
-                # replacement for bootstrap
-                k_model = KNeighborsClassifier(n_neighbors=k+1).fit(X[train_sample_index], outcome[train_sample_index])
-                k_accuracy[k]+= accuracy_score( outcome[test_sample_index],
-                        k_model.predict(X[test_sample_index]) )
-            k_accuracy[k] /= n_samples
-        k = np.argmax(k_accuracy[1:]) + 1
+        # This is a bootstrap to choose k. It consistently recommends
+        # k = 1 for both Historical and ImprovedRecommender, but
+        # trial and error suggests k = 2 and k = 25, respectively
+        use_bootstrap = False
+        if use_bootstrap:
+            print("Bootstrap for k begin, K = %d" % K)
+            for k in range(K):
+                print("testing k = %d" % k)
+                for i in range(n_samples):
+                    train_set, test_set = train_test_split(data, test_size = 0.2)
+                    # pick len(train_set) indexes in (0 , len(train_set)-1)
+                    train_sample_index = np.random.choice(len(train_set),
+                                                        len(train_set))
+                    test_sample_index = np.random.choice(len(test_set),
+                                                        len(test_set))
+                    # use picked indexes to pick data points with
+                    # replacement for bootstrap
+                    k_model = KNeighborsClassifier(n_neighbors=k+1).fit(data[train_sample_index], actions[train_sample_index])
+                    k_accuracy[k]+= accuracy_score( actions[test_sample_index],
+                            k_model.predict(data[test_sample_index]) )
+                print(k_accuracy)
+                k_accuracy[k] /= n_samples
+                print(k_accuracy)
+            k = np.argmax(k_accuracy[1:]) + 1
 
-        print("Bootstrap END, k = %d" % k)
-        # Bootstrap end
-        """
-
-        # hard set k to avoid running bootstrap all the time
-        # k = 1
-        k = 25
+            print("Bootstrap END, k = %d" % k)
+            # Bootstrap end
+        else: # don't use bootstrap for k
+            # hard set k to avoid running bootstrap all the time
+            k = 25
         print("k neighbors: %d" % k)
 
         self.model = KNeighborsClassifier(n_neighbors = k).fit(X, outcome)
 
     ## Estimate the utility of a specific policy from historical data.
-    ## If the policy is None, return use the historical policy
+    ## If the policy argument is None, use the improved policy
     def estimate_utility(self, data, actions, outcome, policy=None):
         if policy is None:
-            proba = self.predict_proba(data, actions)[outcome]
-            rewa = self.reward(actions, outcome)
-            result = proba * rewa
-            return result
+            if data.ndim == 1: # only one user, action and outcome
+                proba = self.predict_proba(data, actions)[outcome]
+                rewa = self.reward(actions, outcome)
+                result = proba * rewa
+                return result
+            elif data.ndim == 2: # full dataset
+                estimate = 0
+                T = len(data)
+                for i in range(T):
+                    res = self.estimate_utility(data[i], actions[i], outcome[i])
+                    estimate += res
+                estimate /= T
+                return estimate
+
         else:
-            # return policy.estimate_utility(data, actions, outcome)
-            return None
+            return policy.estimate_utility(data, actions, outcome)
 
 
     # Return a distribution of effects for a given person's data and a specific treatment
@@ -165,7 +164,6 @@ class ImprovedRecommender:
 
     # Observe the effect of an action
     def observe(self, user, action, outcome):
-        # TODO implement
         return None
 
     # After all the data has been obtained, do a final analysis. This can consist of a number of things:

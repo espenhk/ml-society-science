@@ -25,8 +25,8 @@
 \usepackage{amssymb,amsthm,mathrsfs,amsfonts,dsfont}
 \usepackage{mathalfa}
 \usepackage{graphicx}
-\usepackage[draft]{todonotes}
-%\usepackage[disable]{todonotes}
+%\usepackage[draft]{todonotes}
+\usepackage[disable]{todonotes}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
@@ -143,37 +143,159 @@
 
 \begin{document}
 %\usetheme{MathDept}
-\title{IN-STK5000 presentation WIP}
+\title{IN-STK5000 project 2: Medical project}
 \author{Espen H. Kristensen (espenhk)}
 \maketitle
-\todo{complete title}
 
 \listoftodos
 
-\section{Historical data}
-\missingfigure{p1 historical data: discovering structure in data}
-\missingfigure{p1 historical data: measuring effect of actions}
+\todo{check all code segments have correct line ranges}
 
-\section{Improved policies}
 \subsection*{Exercise 1 (Measuring utility)}
-\missingfigure{implement estimate utility on historical data}
-\missingfigure{measure utility of historical policy on historical data}
-\missingfigure{provide error bounds, explain}
-\subsection*{Exercise 2 (Improved policies)}
-\missingfigure{find improved policy}
-\missingfigure{calculate expected utility of improved policy from historical
-data, implement in estimate utility}
 
-\section{Adaptive experiment design}
+Estimating the utility using the historical policy, can be found simply as
+\begin{equation*}
+  \hat{E}(U) = \sum_t r(a_t, y_t) / T
+\end{equation*}
+
+The \texttt{estimate\_utility()} method can be found in \texttt{HistoricalRecommender.py}, and is as
+follows. Note that the \texttt{self.hist\_data} etc come from the training of the model using
+\texttt{fit\_treatment\_outcome()}, so this function must have been called before calling
+\texttt{estimate\_utility()} without a policy.
+
+\lstinputlisting[firstline=125, lastline=137]{HistoricalRecommender.py}
+
+I've made some additions to the test bench \texttt{TestRecommender.py}, where the first part
+the estimated utility. Running it gives:
+\lstinputlisting[lastline=3]{test_out.txt}
+
+\subsection*{Exercise 2 (Improved policies)}
+
+The functions relevant to this exercise can be found in \texttt{ImprovedRecommender.py}. To build a
+model, \texttt{fit\_treatment\_outcome()} is used to fit $P(y|a,x)$, that is the probability of an
+outcome given historical data of patient information and actions (treatments given). This is done using
+a K-Nearest Neighbors-classifier. I've created a bootstrap to pick the best $k$, but this always
+suggests $k=1$, despite the fact that trial and error suggests $k = 2$ is better for the historical
+recommender, and $k = 25$ for this improved recommender.  I'm not sure if this is because my bootstrap
+isn't designed correctly, or because just running the test bench with different $k$ values will give
+some form of overfitting, but as I can't find a problem in the bootstrap I'm leaning towards the latter.
+
+Note the flag \texttt{use\_bootstrap}, which can be changed to either use the bootstrap (True) or use a
+manually set value for $k$ (False). Also note that the bootstrap takes a few minutes to run, which is
+why it's disabled by default.  So, the model is fit and saved as \texttt{self.model} by
+
+\lstinputlisting[firstline=75, lastline=123]{ImprovedRecommender.py}
+
+and estimated expected utility found by
+
+\lstinputlisting[firstline=125, lastline=144]{ImprovedRecommender.py}
+
+The second part of my testbench calculates this, and gives:
+\lstinputlisting[firstline=4, lastline=6]{test_out.txt}
+
 \subsection*{Exercise 3 (Online policy testing)}
-\missingfigure{Create HistoricalRecommender}
-\missingfigure{Create ImprovedRecommender}
-\missingfigure{comment differences from exercise 2}
+\subsubsection*{1. HistoricalRecommender}
+
+The historical policy $\pi_0$ we seek is $P(a|x)$, that is the probability of seeing an
+action given data about a patient. Similarly to the improved recommender, I use a K-NN classifier and
+fit a model to this using \texttt{fit\_treatment\_outcome()}.  Essentially, the only difference between
+the historical and the improved versions of this function is the arguments passed to \texttt{fit()} at
+the end of the function. Note also that a different $k$ is used by default, since $k = 2$ gave better
+results for this classifier. The function is thus
+
+\lstinputlisting[firstline=76, lastline=123]{HistoricalRecommender.py}
+\clearpage
+To compare the result from the testbench with the estimates previously found,
+I've changed the default reward function to reflect the one in the exercise text,
+and also divide the total reward by number of steps $T$. 
+All test bench runs are with 1000 samples, unless otherwise noted.
+Running the testbench with \texttt{HistoricalRecommender} chosen, gives output
+
+\lstinputlisting[firstline=8, lastline=28]{test_out.txt}
+
+\subsubsection*{2. ImprovedRecommender}
+This recommender is already described through exercise 2. Running the main portion of the
+test bench with it chosen, gives
+
+\lstinputlisting[firstline=8, lastline=28]{test_imp_out.txt}
+ 
+\subsubsection*{3. Comment differences}
+Clearly, both recommenders perform better during online testing than when tested on the historical
+data. This seems quite an odd result, as we would expect the model to perform better on the data
+it was trained on, rather than these unseen data. We fortunately see that the improved recommender
+does better than the historical one on the first testbench case.
+
+For the second case, it seems the exercise text does not expect this case to be used until exercise 4.
+It can still be useful to see what they gave. We see that neither recommenders are built for this and so
+they ''fail'' in one way each: The \texttt{HistoricalRecommender}'s \texttt{recommend()}-function only
+considers the probability of the model choosing action 0, choosing 0 if it's above 0.5 and 1 if not.
+This means it's less affected by there suddenly being a third option, as it will pool choices 1 and 2
+together.. The ImprovedRecommender however is thrown terribly off, which is understandable as the data
+has a different nature to what it was trained on. This can be a useful baseline to have before exercise
+4.
 
 \subsection*{Exercise 4 (Adaptive experiments)}
-\missingfigure{Create AdaptiveRecommender}
-\missingfigure{Add case 2, action 2 = improved treatment}
-\missingfigure{plan to maximize expected no. of treated}
-\missingfigure{report both by exp no. of treated and most effective policy}
-\missingfigure{implement final analysis (see pts 1-4)}
+The adaptive recommender has been implemented in \texttt{AdaptiveRecommender.py}. It is
+at its core the same as \texttt{ImprovedRecommender}, except for the \texttt{observe()} method which has
+been implemented here. It is implemented simply by appending the new data to that previously seen, and
+refitting the model. It refits in batches, batch size is set by the \texttt{refit\_every} variable
+-- a value of 1 means refit with every datapoint, 100 means refit every one hundredth etc.
+
+A more efficient way of handling it would be to do some form of incremental learning, but
+\texttt{scikit-learn} does not support this for a KNN classifier. They do however have a
+\texttt{partial\_fit} API which some classifiers implement, so if one were to change to one of these you
+could do \texttt{self.model.partial\_fit(X, y)} to only fit the new data in with the historical. This
+should be computationally quite a bit more efficient, but I have not had time to change my
+implementation to one of these.
+
+Running the \texttt{AdaptiveRecommender} through our test bench, we get
+
+\lstinputlisting[firstline=8]{test_ad_out.txt}
+
+This table summarizes the estimated utilities found:
+\begin{table}[!htbp]
+\begin{tabular}{|l|c|c|c|}
+\hline
+           & hist\_data & TB case 1 & TB case 2 \\ \hline
+Historical & 0.1191     & 0.2091    & 0.2006    \\ \hline
+Improved   & 0.0324     & 0.3647    & -0.3236   \\ \hline
+Adaptive (1k, 1)  & --         & 0.3759    & -0.0078    \\ \hline
+Adaptive (10k, 100)  & --         & 0.4007    & 0.2653    \\ \hline
+\end{tabular}
+\end{table}
+
+Adaptive (1k, 1) is the adaptive recommender tested with 1000 samples and refitting for every
+new data point, whereas Adaptive (10k, 100) has 10 000 samples and refits every 100 data points.
+First we'll consider only the first of these, as it's the most comparable with the others.
+
+We see that in the first testbench case (two treatments available), the adaptive recommender does
+marginally better than the improved, which outperforms the historical. In the second testbench case
+(additional treatment available), both improved and adaptive struggle, but we see that adaptive does
+quite a lot better than improved here. Note that there is no point in testing the adaptive recommender
+on historical data, as it would perform equally to improved. Thus, I would say the adaptive recommender
+shows considerable promise, and might catch up to the historical if given enough data.
+
+And indeed, when we increase to 10 000 samples, refitting every 100, we see another improvement in
+the first test case. But more importantly we see a great improvement in the new treatment case. We
+can speculate that starting without previous data would give a better result, again at least as
+the amount of data increases, but I've not had the time to test what magnitude of data would be
+necessary for this. The issue with starting from scratch would be the initial batches, where the
+distribution in the data would be highly random.
+
+This is how far I got with my analysis. Thanks for providing an interesting and challenging course, that
+I wish I had more time to work on!
+
+\subsection*{Attached:}
+\begin{itemize}
+  \item Recommender classes: \texttt{HistoricalRecommender.py}, \texttt{ImprovedRecommender.py},
+    \texttt{AdaptiveRecommender.py}
+  \item Modified test bench: \texttt{TestRecommender.py}
+  \item Generating matrices files (unmodified): \texttt{big\_generating\_matrices.mat}, \texttt{generating\_matrices.mat}
+  \item Data generator (unmodified): \texttt{data\_generation.py}
+\end{itemize}
+
+In addition to this, the data files containing historical data need to be in the same position relative to the project files as it is in the GitHub-repository.
+
+
+
 \end{document}

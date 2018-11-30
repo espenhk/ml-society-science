@@ -1,0 +1,28 @@
+---- Estimating utility for historical recommender on historical data ----
+k neighbors: 2
+Estimated utility: 0.1191
+---- Estimating utility for improved recommender on historical data ----
+k neighbors: 25
+Estimated utility: 0.0324
+
+==== Start of original test bench, using HistoricalRecommender ====
+---- Testing with only two treatments ----
+Setting up simulator
+Setting up policy
+Fitting historical data to the policy
+k neighbors: 2
+Running an online test
+Testing for  1000 steps
+Total reward: 0.2091
+Final analysis of results
+time taken to test: 47.652 seconds
+--- Testing with an additional experimental treatment and 126 gene silencing treatments ---
+Setting up simulator
+Setting up policy
+Fitting historical data to the policy
+k neighbors: 2
+Running an online test
+Testing for  1000 steps
+Total reward: 0.2006
+Final analysis of results
+time taken to test: 47.031 seconds

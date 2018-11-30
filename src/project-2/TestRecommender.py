@@ -1,11 +1,15 @@
 import numpy as np
 import pandas
-def default_reward_function(action, outcome):
-    return outcome
 
+# NOTE: changed to reflect reward used in exercise text
+def default_reward_function(action, outcome):
+    return (-0.1)*action + outcome
+
+# NOTE: utility is divided by number of steps, to enable 
+# comparison with the estimates using historical data
 def test_policy(generator, policy, reward_function, T):
     print("Testing for ", T, "steps")
-    policy.set_reward(reward_function)
+    # policy.set_reward(reward_function)
     u = 0
     for t in range(T):
         x = generator.generate_features()
@@ -14,9 +18,7 @@ def test_policy(generator, policy, reward_function, T):
         r = reward_function(a, y)
         u += r
         policy.observe(x, a, y)
-        #print(a)
-        #print("x: ", x, "a: ", a, "y:", y, "r:", r)
-    return u
+    return u/T
 
 features = pandas.read_csv('data/medical/historical_X.dat', header=None, sep=" ").values
 actions = pandas.read_csv('data/medical/historical_A.dat', header=None, sep=" ").values
@@ -30,14 +32,35 @@ gene_expr = features[:, 2:128]
 import data_generation
 import ImprovedRecommender
 import HistoricalRecommender
-# policy_factory = ImprovedRecommender.ImprovedRecommender
-policy_factory = HistoricalRecommender.HistoricalRecommender
+import AdaptiveRecommender
+
+hist_fac = HistoricalRecommender.HistoricalRecommender
+imp_fac = ImprovedRecommender.ImprovedRecommender
+ad_fac = AdaptiveRecommender.AdaptiveRecommender
+
+print("---- Estimating utility for historical recommender on historical data ----")
+policy_hist = hist_fac(len(actions), len(outcome))
+policy_hist.fit_treatment_outcome(features, actions, outcome)
+# arguments don't matter since historical data is used anyway
+hist_hist_E_U = policy_hist.estimate_utility(0,0,0)
+print("Estimated utility: %.4f" % hist_hist_E_U)
+
+print("---- Estimating utility for improved recommender on historical data ----")
+policy_imp = imp_fac(len(actions), len(outcome))
+policy_imp.fit_treatment_outcome(features, actions, outcome)
+imp_hist_E_U = policy_imp.estimate_utility(features, actions, outcome)
+print("Estimated utility: %.4f" % imp_hist_E_U)
+
+# NOTE: change this to determine recommender used for the rest
+# policy_factory = hist_fac
+policy_factory = ad_fac
 
 import time
 
 ## First test with the same number of treatments
 start_time = time.time()
-print(" USING %s" % policy_factory.__name__)
+print()
+print("==== Start of original test bench, using %s ====" % policy_factory.__name__)
 print("---- Testing with only two treatments ----")
 
 print("Setting up simulator")
@@ -49,11 +72,10 @@ print("Fitting historical data to the policy")
 policy.fit_treatment_outcome(features, actions, outcome)
 ## Run an online test with a small number of actions
 print("Running an online test")
-n_tests = 1000
+n_tests = 10000
 # n_tests = 100
-# TODO policy somehow becomes int here, or herein
 result = test_policy(generator, policy, default_reward_function, n_tests)
-print("Total reward:", result)
+print("Total reward: %.4f" % result)
 print("Final analysis of results")
 policy.final_analysis()
 end_time = time.time()
@@ -73,7 +95,7 @@ policy.fit_treatment_outcome(features, actions, outcome)
 print("Running an online test")
 # n_tests = 1000
 result = test_policy(generator, policy, default_reward_function, n_tests)
-print("Total reward:", result)
+print("Total reward: %.4f" % result)
 print("Final analysis of results")
 policy.final_analysis()
 end_time = time.time()
